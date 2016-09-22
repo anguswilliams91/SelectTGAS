@@ -28,3 +28,4 @@ selecTGAS.sky_plot(9.)
 selecTGAS(40.,30.,8.)
 
 ```
+![Alt text](TGAS_slice.png?raw=true)

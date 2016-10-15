@@ -1,5 +1,5 @@
 # SelectTGAS
-Selection function for the TGAS sample from Gaia DR1. Requires `numpy`, `matplotlib` and `healpy`. 
+Selection function for the TGAS and TGAS+RAVE samples from Gaia DR1. Requires `numpy`, `matplotlib` and `healpy`. 
 The module is called `tgas_sf`.
 
 To install using `pip`, type 
@@ -11,7 +11,7 @@ using HEALPix, and then evaluating the completeness in a range of J-band magnitu
 the 2MASS point source catalog. There are two resolutions: low (NSIDE=8) and high (NSIDE=32). 
 
 The selection function is implemented as a class `SelectionFunctionTGAS` and the `__call__` method 
-evaluates the selection function at (l,b,J) using nearest-neighbour interpolation.
+evaluates the selection function at (l,b,J) using nearest-neighbour interpolation. For TGAS+RAVE, the class is called `SelectionFunctionTGASRAVE` and the `__call__` method takes four arguments (l,b,J,J-K), because RAVE did not observe stars with J-K<0.5 at |b|<25 degrees.
 
 Example snippet:
 

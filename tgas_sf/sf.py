@@ -5,7 +5,7 @@ import healpy
 import matplotlib.pyplot as plt
 import os
 
-__all__ = ["SelectionFunctionTGAS"]
+__all__ = ["SelectionFunctionTGAS","SelectionFunctionTGASRAVE"]
 
 
 def lb2pix(nside, l, b, nest=True):
@@ -153,3 +153,60 @@ class SelectionFunctionTGAS(SelectionFunction):
             "tycho2_nside{:.0f}.dict".format(nside)))
         
         return None
+
+
+class SelectionFunctionTGASRAVE(SelectionFunction):
+
+    """
+    Selection function for the TGAS-RAVE sample as a function of 2MASS J band and J-K color. 
+    Parameters
+    ----------
+        nside (=8): int
+            the resolution of the map. Must be 8 or 32.
+    Returns
+    -------
+        sf: SelectionFunctionTGASRAVE
+            A SelectionFunctionTGASRAVE object at the requested resolution.
+    """
+
+    _survey_label = "TGAS-RAVE"
+    _magnitude_label = "J"
+    _magnitude_latex_label = r"$J/\mathrm{mag}$"
+
+    def __init__(self, nside=8):
+        if int(nside) not in (8, 32):
+            raise ValueError("nside must be 8 or 32")
+
+        super(SelectionFunctionTGASRAVE, self).__init__(os.path.join(
+            os.path.dirname(__file__), "maps",
+            "tgas_rave_nside{:.0f}.dict".format(nside)))
+
+    def __call__(self, l, b, mag, col):
+        """
+        Evaluate the SF at (l,b) and at magnitude mag using nearest neighbour interpolation.
+        Parameters
+        ----------
+        l: array_like
+            Galactic longitude in degrees.
+        b: array_like
+            Galactic latitude in degrees.
+        mag: array_like
+            magnitude at which to evaluate SF.
+        col: array_like
+            J-K color at which to evaluate SF.
+        Returns
+        -------
+        sf: array_like
+            the selection function evaluated at (l,b,mag,col)
+        """
+        #if something is off the top/bottom of the magnitude grid, then use the completeness at the inner/outer gridpoint
+        mag = np.clip(mag, np.min(self.mag_bins), np.max(self.mag_bins))
+        #list of the pixels inside which our points lie
+        pix = lb2pix(self.nside, l, b) 
+        mag_idx = np.abs(np.subtract.outer(self.mag_bins, mag)).argmin(0) #nearest neighbour points in magnitude array
+        fracs = np.atleast_1d(self.map[pix, mag_idx])
+        fracs[(np.abs(np.atleast_1d(b))<25.)&(np.atleast_1d(col)<0.5)] = 0. #set the SF to zero when the color/latitude cut enforced by RAVE isn't satisfied
+        return fracs
+        
+        return None
+

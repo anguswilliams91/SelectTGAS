@@ -207,6 +207,4 @@ class SelectionFunctionTGASRAVE(SelectionFunction):
         fracs = np.atleast_1d(self.map[pix, mag_idx])
         fracs[(np.abs(np.atleast_1d(b))<25.)&(np.atleast_1d(col)<0.5)] = 0. #set the SF to zero when the color/latitude cut enforced by RAVE isn't satisfied
         return fracs
-        
-        return None
 
